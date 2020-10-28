@@ -171,7 +171,7 @@ func main() {
 		return fiberx.Message(c, "Welcome to dawn 👋")
 	})
 
-	log.Infoln(0, sloop.Execute(":3000"))
+	log.Infoln(0, sloop.Run(":3000"))
 }
 `
 
