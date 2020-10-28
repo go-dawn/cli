@@ -119,6 +119,21 @@ dawn new PROJECT [module name] [flags]
   -t, --template string   basic|complex (default "basic")
 ```
 
+## dawn upgrade
+### Synopsis
+
+Upgrade Dawn cli if a newer version is available
+
+```
+dawn upgrade [flags]
+```
+
+### Options
+
+```
+  -h, --help   help for upgrade
+```
+
 ## dawn version
 ### Synopsis
 

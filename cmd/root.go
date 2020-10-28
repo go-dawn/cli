@@ -1,33 +1,107 @@
 package cmd
 
 import (
+	"fmt"
+	"os"
 	"strings"
+	"time"
 
+	"github.com/go-dawn/cli/cmd/internal"
 	"github.com/muesli/termenv"
 	"github.com/spf13/cobra"
 )
 
-const version = "v0.0.7"
+const version = "0.0.7"
+const configName = ".dawnconfig"
+
+var (
+	rc = rootConfig{
+		CliVersionCheckInterval: int64((time.Hour * 12) / time.Second),
+	}
+)
+
+type rootConfig struct {
+	CliVersionCheckInterval int64 `json:"cli_version_check_interval"`
+	CliVersionCheckedAt     int64 `json:"cli_version_checked_at"`
+}
 
 func init() {
 	rootCmd.AddCommand(
-		versionCmd, newCmd, generateCmd, devCmd,
+		versionCmd, newCmd, generateCmd, devCmd, upgradeCmd,
 	)
 }
 
 var rootCmd = &cobra.Command{
-	Use:   "dawn",
-	Short: "Dawn is an opinionated lightweight framework",
-	Long:  colorizeLongDescription(),
-	RunE:  rootRunE,
+	Use:               "dawn",
+	Short:             "Dawn is an opinionated lightweight framework",
+	Long:              colorizeLongDescription(),
+	RunE:              rootRunE,
+	PersistentPreRun:  rootPersistentPreRun,
+	PersistentPostRun: rootPersistentPostRun,
+	SilenceErrors:     true,
+}
+
+// Execute adds all child commands to the root command and sets flags appropriately.
+// This is called by main.main(). It only needs to happen once to the rootCmd.
+func Execute() {
+	if err := rootCmd.Execute(); err != nil {
+		_ = rootCmd.Help()
+		_, _ = fmt.Fprintf(os.Stderr, "\n%s\n", err)
+	}
 }
 
 func rootRunE(cmd *cobra.Command, _ []string) error {
 	return cmd.Help()
 }
 
-func Run() (err error) {
-	return rootCmd.Execute()
+func rootPersistentPreRun(cmd *cobra.Command, _ []string) {
+	if err := loadConfig(); err != nil {
+		warning := fmt.Sprintf("WARNING: failed to load config: %s\n\n", err)
+		cmd.Println(termenv.String(warning).Foreground(termenv.ANSIBrightYellow))
+	}
+}
+
+func rootPersistentPostRun(cmd *cobra.Command, _ []string) {
+	checkCliVersion(cmd)
+}
+
+func checkCliVersion(cmd *cobra.Command) {
+	if !needCheckCliVersion() {
+		return
+	}
+
+	cliLatestVersion, err := latestVersion(true)
+	if err != nil {
+		return
+	}
+
+	if version != cliLatestVersion {
+		title := termenv.String(fmt.Sprintf(versionUpgradeTitleFormat, version, cliLatestVersion)).
+			Foreground(termenv.ANSIBrightYellow)
+
+		prompt := internal.NewPrompt(title.String())
+		ok, err := prompt.YesOrNo()
+
+		if err == nil && ok {
+			upgrade(cmd, cliLatestVersion)
+		}
+
+		if err != nil {
+			warning := fmt.Sprintf("WARNING: Failed to upgrade dawn cli: %s", err)
+			cmd.Println(termenv.String(warning).Foreground(termenv.ANSIBrightYellow))
+		}
+	}
+
+	updateVersionCheckedAt()
+}
+
+func updateVersionCheckedAt() {
+	rc.CliVersionCheckedAt = time.Now().Unix()
+	storeConfig()
+}
+
+func needCheckCliVersion() bool {
+	return !upgraded && rc.CliVersionCheckedAt+rc.CliVersionCheckInterval < time.Now().Unix()
 }
 
 func colorizeLongDescription() string {
@@ -44,9 +118,9 @@ func colorizeLongDescription() string {
 		Foreground(termenv.ANSICyan).String()
 	oldnew = append(oldnew, "~", wave)
 
-	v := termenv.String(version).
+	v := termenv.String("v" + version).
 		Foreground(termenv.ANSIYellow).String()
-	oldnew = append(oldnew, version, v)
+	oldnew = append(oldnew, "v"+version, v)
 
 	github := termenv.String("https://github.com/go-dawn/dawn").
 		Foreground(termenv.ANSICyan).
@@ -58,8 +132,14 @@ func colorizeLongDescription() string {
 	return replacer.Replace(longDescription)
 }
 
-const longDescription = `       __
-   ___/ /__ __    _____    dawn-cli ` + version + `
+const (
+	longDescription = `       __
+   ___/ /__ __    _____    dawn-cli v` + version + `
  ~/ _  / _ '/ |/|/ / _ \~  For the opinionated lightweight framework dawn
 ~~\_,_/\_,_/|__,__/_//_/~~ Visit https://github.com/go-dawn/dawn for detail
  ~~~  ~~ ~~~~~~~~~ ~~~~~~  (c) since 2020 by kiyonlin@gmail.com`
+
+	versionUpgradeTitleFormat = `
+You are using dawn cli version %s; however, version %s is available.
+Would you like to upgrade now? (y/N)`
+)

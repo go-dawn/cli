@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"os/exec"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -70,11 +69,7 @@ func createProject(projectPath, modName string, isApp bool) (err error) {
 		return
 	}
 
-	if err = runCmd("go", "mod", "init", modName); err != nil {
-		return
-	}
-
-	if err = runCmd("go", "mod", "tidy"); err != nil {
+	if err = runCmd(execCommand("go", "mod", "init", modName)); err != nil {
 		return
 	}
 
@@ -100,8 +95,6 @@ func createConfigs(projectPath string) (err error) {
 	return
 }
 
-var execLookPath = exec.LookPath
-
 func initGit(projectPath string) (err error) {
 	var git string
 	if git, err = execLookPath("git"); err != nil {
@@ -113,15 +106,15 @@ func initGit(projectPath string) (err error) {
 		return
 	}
 
-	if err = runCmd(git, "init"); err != nil {
+	if err = runCmd(execCommand(git, "init")); err != nil {
 		return
 	}
 
-	if err = runCmd(git, "add", "-A"); err != nil {
+	if err = runCmd(execCommand(git, "add", "-A")); err != nil {
 		return
 	}
 
-	if err = runCmd(git, "commit", "-m", "dawn init"); err != nil {
+	if err = runCmd(execCommand(git, "commit", "-m", "dawn init")); err != nil {
 		return
 	}
 
@@ -178,7 +171,7 @@ func main() {
 		return fiberx.Message(c, "Welcome to dawn 👋")
 	})
 
-	log.Infoln(0, sloop.Run(":3000"))
+	log.Infoln(0, sloop.Execute(":3000"))
 }
 `
 

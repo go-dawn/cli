@@ -1,12 +1,29 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"os/exec"
+	"path"
 	"time"
 )
+
+var (
+	homeDir string
+
+	execLookPath = exec.LookPath
+	execCommand  = exec.Command
+	osExit       = os.Exit
+
+	skipSpinner bool
+)
+
+func init() {
+	homeDir, _ = os.UserHomeDir()
+}
 
 func createFile(filePath, content string) (err error) {
 	var f *os.File
@@ -21,11 +38,7 @@ func createFile(filePath, content string) (err error) {
 	return
 }
 
-var execCommand = exec.Command
-
-func runCmd(name string, arg ...string) (err error) {
-	cmd := execCommand(name, arg...)
-
+func runCmd(cmd *exec.Cmd) (err error) {
 	var (
 		stderr io.ReadCloser
 		stdout io.ReadCloser
@@ -65,4 +78,53 @@ func formatLatency(d time.Duration) time.Duration {
 	default:
 		return d
 	}
+}
+
+func loadConfig() (err error) {
+	configFilePath := configFilePath()
+
+	if fileExist(configFilePath) {
+		if err = loadJson(configFilePath, &rc); err != nil {
+			return
+		}
+	}
+
+	return
+}
+
+func storeConfig() {
+	_ = storeJson(configFilePath(), rc)
+}
+
+func configFilePath() string {
+	if homeDir == "" {
+		return configName
+	}
+
+	return fmt.Sprintf("%s%c%s", homeDir, os.PathSeparator, configName)
+}
+
+var fileExist = func(filename string) bool {
+	if _, err := os.Stat(filename); os.IsNotExist(err) {
+		return false
+	}
+	return true
+}
+
+func storeJson(filename string, v interface{}) error {
+	b, err := json.MarshalIndent(v, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	return ioutil.WriteFile(filename, b, 0600)
+}
+
+func loadJson(filename string, v interface{}) error {
+	b, err := ioutil.ReadFile(path.Clean(filename))
+	if err != nil {
+		return err
+	}
+
+	return json.Unmarshal(b, v)
 }

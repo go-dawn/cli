@@ -21,7 +21,7 @@ func Test_Version_Printer(t *testing.T) {
 
 		out, err := runCobraCmd(versionCmd)
 		at.Nil(err)
-		at.Contains(out, "v0.3.0")
+		at.Contains(out, "0.3.0")
 	})
 
 	t.Run("latest err", func(t *testing.T) {
@@ -61,7 +61,7 @@ require (
 
 		v, err := currentVersion()
 		at.Nil(err)
-		at.Equal("v0.3.0", v)
+		at.Equal("0.3.0", v)
 	})
 
 	t.Run("match master", func(t *testing.T) {
@@ -78,7 +78,7 @@ require (
 
 		v, err := currentVersion()
 		at.Nil(err)
-		at.Equal("v0.0.0-20200926082917-55763e7e6ee3", v)
+		at.Equal("0.0.0-20200926082917-55763e7e6ee3", v)
 	})
 
 	t.Run("package not found", func(t *testing.T) {
@@ -115,7 +115,7 @@ func Test_Version_Latest(t *testing.T) {
 
 		httpmock.RegisterResponder(http.MethodGet, latestVersionUrl, httpmock.NewErrorResponder(errors.New("network error")))
 
-		_, err := latestVersion()
+		_, err := latestVersion(false)
 		at.NotNil(err)
 	})
 
@@ -125,9 +125,9 @@ func Test_Version_Latest(t *testing.T) {
 
 		httpmock.RegisterResponder(http.MethodGet, latestVersionUrl, httpmock.NewBytesResponder(200, fakeVersionResponse))
 
-		v, err := latestVersion()
+		v, err := latestVersion(false)
 		at.Nil(err)
-		at.Equal("v0.3.0", v)
+		at.Equal("0.3.0", v)
 	})
 
 	t.Run("no version matched", func(t *testing.T) {
@@ -136,7 +136,7 @@ func Test_Version_Latest(t *testing.T) {
 
 		httpmock.RegisterResponder(http.MethodGet, latestVersionUrl, httpmock.NewBytesResponder(200, []byte("no version")))
 
-		_, err := latestVersion()
+		_, err := latestVersion(false)
 		at.NotNil(err)
 	})
 }

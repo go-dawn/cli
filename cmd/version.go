@@ -29,7 +29,7 @@ func versionRun(cmd *cobra.Command, _ []string) {
 		cur = err.Error()
 	}
 
-	if latest, err = latestVersion(); err != nil {
+	if latest, err = latestVersion(false); err != nil {
 		_, _ = fmt.Fprintf(w, "dawn version: %v\n", err)
 		return
 	}
@@ -37,7 +37,7 @@ func versionRun(cmd *cobra.Command, _ []string) {
 	_, _ = fmt.Fprintf(w, "dawn version: %s(latest %s)\n", cur, latest)
 }
 
-var currentVersionRegexp = regexp.MustCompile(`github\.com/go-dawn/dawn*?\s+(.*)\n`)
+var currentVersionRegexp = regexp.MustCompile(`github\.com/go-dawn/dawn[^\n]*? v(.*)\n`)
 var currentVersionFile = "go.mod"
 
 func currentVersion() (string, error) {
@@ -53,15 +53,21 @@ func currentVersion() (string, error) {
 	return "", errors.New("github.com/go-dawn/dawn was not found in go.mod")
 }
 
-var latestVersionRegexp = regexp.MustCompile(`"name":"(v.*?)"`)
+var latestVersionRegexp = regexp.MustCompile(`"name":\s*?"v(.*?)"`)
 
-func latestVersion() (v string, err error) {
+func latestVersion(isCli bool) (v string, err error) {
 	var (
 		res *http.Response
 		b   []byte
 	)
 
-	if res, err = http.Get("https://api.github.com/repos/go-dawn/dawn/releases/latest"); err != nil {
+	if isCli {
+		res, err = http.Get("https://api.github.com/repos/go-dawn/cli/releases/latest")
+	} else {
+		res, err = http.Get("https://api.github.com/repos/go-dawn/dawn/releases/latest")
+	}
+
+	if err != nil {
 		return
 	}
 
