@@ -17,16 +17,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_Dev_RunE(t *testing.T) {
-	t.Parallel()
-
-	c.root = ".-."
-
-	err := devRunE(devCmd, nil)
-
-	assert.NotNil(t, err)
-}
-
 func Test_Dev_Escort_New(t *testing.T) {
 	t.Parallel()
 
