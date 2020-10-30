@@ -3,7 +3,7 @@ module github.com/go-dawn/cli
 go 1.14
 
 require (
-	github.com/charmbracelet/bubbles v0.7.1
+	github.com/charmbracelet/bubbles v0.7.2
 	github.com/charmbracelet/bubbletea v0.12.1
 	github.com/containerd/console v1.0.1
 	github.com/fsnotify/fsnotify v1.4.9
