@@ -9,15 +9,18 @@ import (
 	"os/exec"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-
 	"github.com/spf13/cobra"
+	"github.com/stretchr/testify/assert"
 )
 
 var (
 	needError bool
 	errFlag   = struct{}{}
 )
+
+func init() {
+	verbose = true
+}
 
 func fakeExecCommand(command string, args ...string) *exec.Cmd {
 	cs := []string{"-test.run=TestHelperProcess", "--", command}

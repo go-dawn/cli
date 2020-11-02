@@ -39,26 +39,28 @@ func createFile(filePath, content string) (err error) {
 }
 
 func runCmd(cmd *exec.Cmd) (err error) {
-	var (
-		stderr io.ReadCloser
-		stdout io.ReadCloser
-	)
+	if verbose {
+		var (
+			stderr io.ReadCloser
+			stdout io.ReadCloser
+		)
 
-	if stderr, err = cmd.StderrPipe(); err != nil {
-		return
-	}
-	defer func() {
-		_ = stderr.Close()
-	}()
-	go func() { _, _ = io.Copy(os.Stderr, stderr) }()
+		if stderr, err = cmd.StderrPipe(); err != nil {
+			return
+		}
+		defer func() {
+			_ = stderr.Close()
+		}()
+		go func() { _, _ = io.Copy(os.Stderr, stderr) }()
 
-	if stdout, err = cmd.StdoutPipe(); err != nil {
-		return
+		if stdout, err = cmd.StdoutPipe(); err != nil {
+			return
+		}
+		defer func() {
+			_ = stdout.Close()
+		}()
+		go func() { _, _ = io.Copy(os.Stdout, stdout) }()
 	}
-	defer func() {
-		_ = stdout.Close()
-	}()
-	go func() { _, _ = io.Copy(os.Stdout, stdout) }()
 
 	if err = cmd.Run(); err != nil {
 		err = fmt.Errorf("failed to run %s", cmd.String())

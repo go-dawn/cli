@@ -35,7 +35,13 @@ func upgradeRunE(cmd *cobra.Command, _ []string) error {
 }
 
 func upgrade(cmd *cobra.Command, cliLatestVersion string) {
-	upgrader := execCommand("go", "get", "-u", "github.com/go-dawn/cli/dawn")
+	args := []string{"get", "-u"}
+	if verbose {
+		args = append(args, "-v")
+	}
+	args = append(args, "github.com/go-dawn/cli/dawn")
+
+	upgrader := execCommand("go", args...)
 	upgrader.Env = append(upgrader.Env, os.Environ()...)
 	upgrader.Env = append(upgrader.Env, "GO111MODULE=off")
 

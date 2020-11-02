@@ -18,6 +18,8 @@ var (
 	rc = rootConfig{
 		CliVersionCheckInterval: int64((time.Hour * 12) / time.Second),
 	}
+
+	verbose bool
 )
 
 type rootConfig struct {
@@ -29,6 +31,8 @@ func init() {
 	rootCmd.AddCommand(
 		versionCmd, newCmd, generateCmd, devCmd, upgradeCmd,
 	)
+
+	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
 }
 
 var rootCmd = &cobra.Command{
