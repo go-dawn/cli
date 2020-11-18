@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const version = "0.0.7"
+const version = "0.0.8"
 const configName = ".dawnconfig"
 
 var (
