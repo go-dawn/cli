@@ -1,4 +1,25 @@
 # Dawn Cli
+<p>
+  <a href="https://pkg.go.dev/github.com/go-dawn/cli?tab=doc">
+    <img src="https://img.shields.io/badge/%F0%9F%93%9A%20godoc-pkg-00ACD7.svg?color=00ACD7&style=flat">
+  </a>
+  <a href="https://goreportcard.com/report/github.com/go-dawn/cli">
+    <img src="https://img.shields.io/badge/%F0%9F%93%9D%20goreport-A%2B-75C46B">
+  </a>
+  <a href="https://codecov.io/gh/go-dawn/cli">
+    <img src="https://codecov.io/gh/go-dawn/cli/branch/main/graph/badge.svg?token=50B581R7EE"/>
+  </a>
+  <a href="https://github.com/go-dawn/cli/actions?query=workflow%3ASecurity">
+    <img src="https://img.shields.io/github/workflow/status/gofiber/fiber/Security?label=%F0%9F%94%91%20gosec&style=flat&color=75C46B">
+  </a>
+  <a href="https://github.com/go-dawn/cli/actions?query=workflow%3ATest">
+    <img src="https://img.shields.io/github/workflow/status/gofiber/fiber/Test?label=%F0%9F%A7%AA%20tests&style=flat&color=75C46B">
+  </a>
+  <a>
+    <img src="https://counter.gofiber.io/badge/go-dawn/cli">
+  </a>
+</p>
+
 Dawn Command Line Interface
 
 # Installation
