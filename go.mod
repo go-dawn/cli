@@ -10,7 +10,7 @@ require (
 	github.com/jarcoal/httpmock v1.0.7
 	github.com/muesli/termenv v0.7.4
 	github.com/spf13/cobra v1.1.1
-	github.com/stretchr/testify v1.6.1
+	github.com/stretchr/testify v1.7.0
 	golang.org/x/crypto v0.0.0-20201117144127-c1f2f97bffc9 // indirect
 	golang.org/x/sys v0.0.0-20201117222635-ba5294a509c7 // indirect
 )
